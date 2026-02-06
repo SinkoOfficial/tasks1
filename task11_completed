@@ -1,0 +1,82 @@
+1. Тестовый suit проекта
+Использовать стандартный фреймворк тестирования для выбранного языка (например, pytest для Python, JUnit для Java, xUnit для .NET).
+
+Написать 2–3 теста, покрывающих ключевые use‑кейсы:
+
+Пример для Python (Currency Converter API):
+
+python
+# tests/test_converter.py
+import pytest
+from app.converter import convert_currency
+
+def test_convert_usd_to_eur():
+    result = convert_currency(100, "USD", "EUR")
+    assert isinstance(result, float)
+    assert result > 0
+
+def test_invalid_currency():
+    with pytest.raises(ValueError):
+        convert_currency(50, "AAA", "USD")
+
+def test_zero_amount():
+    result = convert_currency(0, "USD", "EUR")
+    assert result == 0
+2. CI пайплайн (GitHub Actions)
+Файл .github/workflows/tests.yml:
+
+yaml
+name: CI Tests
+
+on:
+  pull_request:
+    branches: [ master, develop ]
+  push:
+    branches: [ master, develop ]
+  workflow_dispatch:   # ручной запуск
+
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run tests
+        run: pytest --maxfail=1 --disable-warnings -q
+
+3. Бейджик в README.md
+После настройки GitHub Actions, добавить бейджик:
+
+markdown
+# Currency Converter API
+
+![CI Tests](https://github.com/<username>/<repo>/actions/workflows/tests.yml/badge.svg?branch=master)
+Если используется git‑flow, можно добавить второй бейджик для develop:
+
+markdown
+![CI Tests (develop)](https://github.com/<username>/<repo>/actions/workflows/tests.yml/badge.svg?branch=develop)
+4. На что обратить внимание
+Ветки: никаких прямых коммитов в master и develop. Все изменения идут через feature‑ветки.
+
+Issues: каждый коммит должен быть привязан к конкретной задаче (closes #12).
+
+.gitignore: исключить временные файлы, IDE‑артефакты, __pycache__, .DS_Store.
+
+Сообщения коммитов: использовать понятные префиксы (feat:, fix:, docs:).
+
+README.md: обновить описание проекта, инструкцию по запуску, добавить примеры работы API.
