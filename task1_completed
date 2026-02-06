@@ -1,0 +1,52 @@
+MIN_AGE = 0
+
+class User:
+    def __init__(self, name, age, email):
+        self.name = name
+        self.age = age
+        self.email = email
+
+    def is_valid(self):
+        return self.age >= MIN_AGE
+
+    def __str__(self):
+        return f"Name: {self.name}, Age: {self.age}, Email: {self.email}"
+
+
+class UserManager:
+    def __init__(self):
+        self.users = []
+
+    def add_user(self, name, age, email):
+        user = User(name, age, email)
+        if not user.is_valid():
+            print("Возраст не может быть отрицательным")
+            return
+        self.users.append(user)
+        print("Пользователь добавлен")
+
+    def print_users(self):
+        for user in self.users:
+            print(user)
+
+    def find_user_by_email(self, email):
+        for user in self.users:
+            if user.email == email:
+                print(f"Пользователь найден: {user.name}")
+                return user
+        print("Пользователь не найден")
+        return None
+
+
+def main():
+    manager = UserManager()
+    manager.add_user("Alice", 25, "alice@example.com")
+    manager.add_user("Bob", -5, "bob@example.com")
+    manager.add_user("Charlie", 30, "charlie@example.com")
+    manager.print_users()
+    manager.find_user_by_email("bob@example.com")
+    manager.find_user_by_email("dave@example.com")
+
+
+if __name__ == "__main__":
+    main()
