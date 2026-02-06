@@ -1,0 +1,153 @@
+from abc import ABC, abstractmethod
+from datetime import datetime
+
+
+class Product:
+    def __init__(self, product_id: int, name: str, price: float):
+        self.id = product_id
+        self.name = name
+        self.price = price
+
+    def __str__(self):
+        return f"{self.id}: {self.name} ({self.price}₸)"
+
+
+class Cart:
+    def __init__(self):
+        self.items = []
+
+    def add_product(self, product: Product, quantity: int = 1):
+        self.items.append((product, quantity))
+
+    def total_price(self):
+        return sum(product.price * qty for product, qty in self.items)
+
+    def clear(self):
+        self.items = []
+
+    def __str__(self):
+        if not self.items:
+            return "Корзина пуста"
+        return "\n".join([f"{p.name} x{q} = {p.price * q}₸" for p, q in self.items])
+
+
+class Order:
+    def __init__(self, order_id: int, cart: Cart, payment_strategy):
+        self.id = order_id
+        self.cart = cart
+        self.payment_strategy = payment_strategy
+        self.created_at = datetime.now()
+        self.status = "new"
+
+    def process_payment(self):
+        amount = self.cart.total_price()
+        result = self.payment_strategy.pay(amount)
+        if result:
+            self.status = "paid"
+        return result
+
+    def __str__(self):
+        return f"Order {self.id}, Status: {self.status}, Total: {self.cart.total_price()}₸"
+
+
+# ===== Strategy Pattern for Payment =====
+class PaymentStrategy(ABC):
+    @abstractmethod
+    def pay(self, amount: float) -> bool:
+        pass
+
+
+class CardPayment(PaymentStrategy):
+    def pay(self, amount: float) -> bool:
+        print(f"Оплата картой на сумму {amount}₸ прошла успешно.")
+        return True
+
+
+class CashPayment(PaymentStrategy):
+    def pay(self, amount: float) -> bool:
+        print(f"Оплата наличными на сумму {amount}₸ прошла успешно.")
+        return True
+
+
+class BonusPayment(PaymentStrategy):
+    def pay(self, amount: float) -> bool:
+        print(f"Оплата бонусами на сумму {amount}₸ прошла успешно.")
+        return True
+
+def main():
+    products = [
+        Product(1, "Ноутбук", 350000),
+        Product(2, "Мышь", 5000),
+        Product(3, "Клавиатура", 12000),
+    ]
+
+    cart = Cart()
+    order_id = 1
+
+    while True:
+        print("\n=== МЕНЮ ===")
+        print("1. Показать товары")
+        print("2. Добавить товар в корзину")
+        print("3. Показать корзину")
+        print("4. Оформить заказ")
+        print("0. Выход")
+
+        choice = input("Выберите пункт: ")
+
+        if choice == "1":
+            print("Доступные товары:")
+            for p in products:
+                print(p)
+
+        elif choice == "2":
+            product_id = int(input("Введите ID товара: "))
+            qty = int(input("Введите количество: "))
+            product = next((p for p in products if p.id == product_id), None)
+            if product:
+                cart.add_product(product, qty)
+                print("Товар добавлен в корзину")
+            else:
+                print("Товар не найден")
+
+        elif choice == "3":
+            print("Корзина:")
+            print(cart)
+            print("Итого:", cart.total_price(), "₸")
+
+        elif choice == "4":
+            if not cart.items:
+                print("Корзина пуста, заказ невозможен")
+                continue
+
+            print("Выберите способ оплаты:")
+            print("1. Карта")
+            print("2. Наличные")
+            print("3. Бонусы")
+            pay_choice = input("Ваш выбор: ")
+
+            if pay_choice == "1":
+                strategy = CardPayment()
+            elif pay_choice == "2":
+                strategy = CashPayment()
+            elif pay_choice == "3":
+                strategy = BonusPayment()
+            else:
+                print("Неверный выбор")
+                continue
+
+            order = Order(order_id, cart, strategy)
+            order.process_payment()
+            print(order)
+            order_id += 1
+            cart.clear()
+
+        elif choice == "0":
+            print("Выход из программы")
+            break
+
+        else:
+            print("Неверный выбор")
+
+
+if __name__ == "__main__":
+    main()
