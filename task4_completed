@@ -1,0 +1,90 @@
+from abc import ABC, abstractmethod
+import json
+
+
+class Worker(ABC):
+    @abstractmethod
+    def work(self):
+        pass
+
+
+class ReportStrategy(ABC):
+    @abstractmethod
+    def generate(self, employee_name: str):
+        pass
+
+
+class JSONReport(ReportStrategy):
+    def generate(self, employee_name: str):
+        return json.dumps({"report": f"Report for {employee_name}: Data..."})
+
+
+class PDFReport(ReportStrategy):
+    def generate(self, employee_name: str):
+        return f"[PDF] Report for {employee_name}: Data..."
+
+
+class HTMLReport(ReportStrategy):
+    def generate(self, employee_name: str):
+        return f"<html><body>Report for {employee_name}: Data...</body></html>"
+
+
+class Role(ABC):
+    @abstractmethod
+    def perform(self):
+        pass
+
+
+class DeveloperRole(Role):
+    def perform(self):
+        return "Writing code"
+
+
+class ManagerRole(Role):
+    def perform(self):
+        return "Managing team"
+
+
+class TesterRole(Role):
+    def perform(self):
+        return "Testing software"
+
+
+class Employee(Worker):
+    def __init__(self, name: str, salary: float, report_strategy: ReportStrategy):
+        self.name = name
+        self.salary = salary
+        self.report_strategy = report_strategy
+        self.roles = []  # список ролей (композиция)
+
+    def add_role(self, role: Role):
+        self.roles.append(role)
+
+    def work(self):
+        results = [role.perform() for role in self.roles]
+        return "; ".join(results) if results else "No roles assigned"
+
+    def generate_report(self):
+        return self.report_strategy.generate(self.name)
+
+
+class RobotSentinel(Worker):
+    def __init__(self, model: str):
+        self.model = model
+
+    def work(self):
+        return f"Robot {self.model} is guarding"
+
+
+if __name__ == "__main__":
+    emp = Employee("Alice", 100000, JSONReport())
+    emp.add_role(DeveloperRole())
+    print(emp.work())  # Writing code
+
+    emp.add_role(ManagerRole())
+    print(emp.work())  # Writing code; Managing team
+
+    print(emp.generate_report())  # {"report": "Report for Alice: Data..."}
+
+    robot = RobotSentinel("RX-78")
+    print(robot.work())  # Robot RX-78 is guarding
