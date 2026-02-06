@@ -1,0 +1,53 @@
+Задание 1: Избавление от «Магических чисел» и вложенности
+Проблема: Метод calculate_delivery содержит сложную вложенную логику (Anti-pattern: Arrow Anti-pattern) и жестко заданные коэффициенты.
+Исходный код:
+Python
+def calculate_delivery(weight, distance, type):
+    if type == "standard":
+        if weight > 10:
+            if distance > 100:
+                return weight * 0.5 + distance * 0.1 + 10
+            else:
+                return weight * 0.5 + 5
+        else:
+            return 5
+    elif type == "express":
+        # ... и так далее
+        pass
+Ваша задача:
+Примените технику Guard Clauses (граничные условия), чтобы избавиться от глубокой вложенности if.
+Вынесите тарифы в отдельную структуру данных (словарь или константы).
+Разбейте метод на несколько подфункций (например, расчет базовой стоимости и расчет надбавки за вес).
+
+Задание 2: Рефакторинг метода с «Длинным списком параметров»
+Проблема: Метод create_user принимает слишком много аргументов, что делает его вызов неудобным и подверженным ошибкам.
+Исходный код:
+Python
+def create_user(first_name, last_name, age, city, street, house, email, phone, send_welcome_email=True, is_admin=False):
+    address = f"{city}, {street}, {house}"
+    user = {"name": f"{first_name} {last_name}", "age": age, "address": address}
+    # Логика сохранения и отправки письма...
+    return user
+Ваша задача:
+Используйте паттерн Introduce Parameter Object. Сгруппируйте связанные данные (например, city, street, house в объект Address).
+Примените именованные аргументы или dataclasses для хранения данных пользователя.
+Разделите ответственность: метод должен либо создавать пользователя, либо отправлять уведомление (принцип Single Responsibility).
+
+Задание 3: Замена условной логики полиморфизмом
+Проблема: Метод использует if-elif для проверки типов уведомлений. При добавлении нового типа (например, Telegram) придется менять основной код.
+Исходный код:
+Python
+class NotificationService:
+    def send(self, message, channel):
+        if channel == "email":
+            print(f"Sending Email: {message}")
+        elif channel == "sms":
+            print(f"Sending SMS: {message}")
+        elif channel == "push":
+            print(f"Sending Push: {message}")
+        else:
+            raise ValueError("Unknown channel")
+Ваша задача:
+Создайте базовый абстрактный класс BaseNotification и наследников для каждого типа связи.
+Реализуйте рефакторинг Replace Conditional with Polymorphism.
+Сделайте так, чтобы NotificationService принимал объект уведомления и вызывал его метод send(), не зная деталей реализации.
