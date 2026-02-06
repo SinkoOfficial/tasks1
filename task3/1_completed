@@ -1,0 +1,152 @@
+# system.py
+import json
+import datetime
+
+
+class User:
+    def __init__(self, user_id, name, email, created_at=None):
+        self.id = user_id
+        self.name = name
+        self.email = email
+        self.created_at = created_at or str(datetime.datetime.now())
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "created_at": self.created_at
+        }
+
+    def __str__(self):
+        return f"{self.id} {self.name} {self.email}"
+
+
+class Order:
+    def __init__(self, order_id, user_id, product, price, status="new", created_at=None):
+        self.id = order_id
+        self.user_id = user_id
+        self.product = product
+        self.price = price
+        self.status = status
+        self.created_at = created_at or str(datetime.datetime.now())
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "product": self.product,
+            "price": self.price,
+            "status": self.status,
+            "created_at": self.created_at
+        }
+
+    def __str__(self):
+        return f"{self.id} {self.user_id} {self.product} {self.price} {self.status}"
+
+
+class FileStorage:
+    def __init__(self, filename="data.json"):
+        self.filename = filename
+
+    def load(self):
+        try:
+            with open(self.filename, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return {"users": [], "orders": []}
+
+    def save(self, users, orders):
+        data = {
+            "users": [u.to_dict() for u in users],
+            "orders": [o.to_dict() for o in orders]
+        }
+        with open(self.filename, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
+
+
+class OrderService:
+    def __init__(self, storage: FileStorage):
+        self.storage = storage
+        data = self.storage.load()
+        self.users = [User(**u) for u in data.get("users", [])]
+        self.orders = [Order(**o) for o in data.get("orders", [])]
+
+    def add_user(self, name, email):
+        user = User(len(self.users) + 1, name, email)
+        self.users.append(user)
+        self.storage.save(self.users, self.orders)
+        return user
+
+    def add_order(self, user_id, product, price):
+        order = Order(len(self.orders) + 1, user_id, product, price)
+        self.orders.append(order)
+        self.storage.save(self.users, self.orders)
+        return order
+
+    def calculate_total(self, user_id):
+        return sum(order.price for order in self.orders if order.user_id == user_id)
+
+    def get_users(self):
+        return self.users
+
+    def get_orders(self):
+        return self.orders
+
+
+class ConsoleUI:
+    def __init__(self, service: OrderService):
+        self.service = service
+
+    def menu(self):
+        while True:
+            print("1. Добавить пользователя")
+            print("2. Добавить заказ")
+            print("3. Показать пользователей")
+            print("4. Показать заказы")
+            print("5. Посчитать сумму заказов пользователя")
+            print("0. Выход")
+
+            choice = input("Выберите пункт: ")
+
+            if choice == "1":
+                name = input("Имя: ")
+                email = input("Email: ")
+                user = self.service.add_user(name, email)
+                print("Пользователь добавлен:", user)
+
+            elif choice == "2":
+                user_id = int(input("ID пользователя: "))
+                product = input("Название товара: ")
+                price = float(input("Цена: "))
+                order = self.service.add_order(user_id, product, price)
+                print("Заказ создан:", order)
+
+            elif choice == "3":
+                print("Список пользователей")
+                for user in self.service.get_users():
+                    print(user)
+
+            elif choice == "4":
+                print("Список заказов")
+                for order in self.service.get_orders():
+                    print(order)
+
+            elif choice == "5":
+                user_id = int(input("ID пользователя: "))
+                total = self.service.calculate_total(user_id)
+                print("Общая сумма:", total)
+
+            elif choice == "0":
+                print("Выход из программы")
+                break
+
+            else:
+                print("Неверный выбор")
+
+
+if __name__ == "__main__":
+    storage = FileStorage()
+    service = OrderService(storage)
+    ui = ConsoleUI(service)
+    ui.menu()
