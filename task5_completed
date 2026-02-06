@@ -1,0 +1,50 @@
+# task1
+def sum_numbers(a, b):
+    """Возвращает сумму двух чисел"""
+    return a + b
+
+def is_even(number):
+    """Возвращает True, если число чётное, иначе False"""
+    return number % 2 == 0
+
+# Вызов функций
+print("Сумма:", sum_numbers(5, 7))
+print("Чётное ли число 10:", is_even(10))
+print("Чётное ли число 7:", is_even(7))
+
+
+# task2
+def double_number(x):
+    """Умножает число на 2"""
+    return x * 2
+
+# Проверка результата
+print("Удвоение числа 4:", double_number(4))  # должно быть 8
+
+
+# task3
+class Car:
+    def __init__(self, brand):
+        self.brand = brand
+
+    def get_brand(self):
+        """Возвращает марку автомобиля"""
+        return self.brand
+
+# Создание объекта и вызов метода
+my_car = Car("Toyota")
+print("Марка автомобиля:", my_car.get_brand())
+
+
+# task4
+class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    def area(self):
+        """Вычисляет площадь прямоугольника"""
+        return self.width * self.height
+
+rect = Rectangle(5, 10)
+print("Площадь прямоугольника:", rect.area())  # должно быть 50
