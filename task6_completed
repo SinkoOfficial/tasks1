@@ -1,0 +1,65 @@
+#1
+def is_adult(age):
+    return age >= 18
+
+#2
+def calculate_average(scores):
+    return sum(scores) / len(scores)
+
+def print_student_result(name, scores):
+    average = calculate_average(scores)
+    print(name, "average score:", average)
+
+#3
+def calculate_price_and_tax(amount):
+    price = amount * 0.9
+    tax = price * 0.12
+    return price, tax
+
+price1, tax1 = calculate_price_and_tax(amount)
+price2, tax2 = calculate_price_and_tax(order)
+
+#4
+HOURLY_RATE = 450  # константа
+
+def calculate_salary(hours):
+    return hours * HOURLY_RATE
+
+#5
+def print_user(user):
+    print(user)
+
+def save_user(user):
+    save_to_db(user)
+
+def notify_user(user):
+    send_email(user)
+
+def process_user(user):
+    print_user(user)
+    save_user(user)
+    notify_user(user)
+
+#6
+def get_discount(age, is_student):
+    if age < 18:
+        return 0.2
+    if is_student:
+        return 0.15
+    return 0
+
+#7
+def calculate_total(order):
+    return sum(item["price"] for item in order)
+
+def delivery_cost(total):
+    return 0 if total > 10000 else 1000
+
+def order_info(order):
+    total = calculate_total(order)
+    print("Total:", total)
+    cost = delivery_cost(total)
+    if cost == 0:
+        print("Free delivery")
+    else:
+        print("Delivery cost:", cost)
