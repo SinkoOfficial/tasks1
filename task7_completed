@@ -1,0 +1,95 @@
+#1
+STANDARD_BASE_FEE = 5
+STANDARD_WEIGHT_SURCHARGE = 0.5
+STANDARD_DISTANCE_SURCHARGE = 0.1
+STANDARD_EXTRA_FEE = 10
+
+def calculate_standard(weight, distance):
+    if weight <= 10:
+        return STANDARD_BASE_FEE
+    if distance > 100:
+        return weight * STANDARD_WEIGHT_SURCHARGE + distance * STANDARD_DISTANCE_SURCHARGE + STANDARD_EXTRA_FEE
+    return weight * STANDARD_WEIGHT_SURCHARGE + STANDARD_BASE_FEE
+
+def calculate_express(weight, distance):
+    return weight * 1.0 + distance * 0.2 + 20
+
+def calculate_delivery(weight, distance, delivery_type):
+    if delivery_type == "standard":
+        return calculate_standard(weight, distance)
+    if delivery_type == "express":
+        return calculate_express(weight, distance)
+    raise ValueError("Unknown delivery type")
+
+#2
+from dataclasses import dataclass
+
+@dataclass
+class Address:
+    city: str
+    street: str
+    house: str
+
+@dataclass
+class User:
+    first_name: str
+    last_name: str
+    age: int
+    address: Address
+    email: str
+    phone: str
+    is_admin: bool = False
+
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+def create_user(user: User):
+    return {
+        "name": user.full_name,
+        "age": user.age,
+        "address": f"{user.address.city}, {user.address.street}, {user.address.house}",
+        "email": user.email,
+        "phone": user.phone,
+        "is_admin": user.is_admin
+    }
+
+def send_welcome_email(user: User):
+    print(f"Welcome email sent to {user.email}")
+
+#3
+from abc import ABC, abstractmethod
+
+class BaseNotification(ABC):
+    @abstractmethod
+    def send(self, message: str):
+        pass
+
+class EmailNotification(BaseNotification):
+    def send(self, message: str):
+        print(f"Sending Email: {message}")
+
+class SMSNotification(BaseNotification):
+    def send(self, message: str):
+        print(f"Sending SMS: {message}")
+
+class PushNotification(BaseNotification):
+    def send(self, message: str):
+        print(f"Sending Push: {message}")
+
+class NotificationService:
+    def __init__(self, notification: BaseNotification):
+        self.notification = notification
+
+    def send(self, message: str):
+        self.notification.send(message)
+
+#Пример использования
+service = NotificationService(EmailNotification())
+service.send("Hello via Email")
+
+service = NotificationService(SMSNotification())
+service.send("Hello via SMS")
+
+service = NotificationService(PushNotification())
+service.send("Hello via Push")
