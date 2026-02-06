@@ -1,0 +1,148 @@
+ Задание 1. «Божественный объект» → нормальная архитектура
+ Условие
+Дан файл system.py, в котором один огромный класс делает всё:
+хранит данные
+считает логику
+работает с файлами
+выводит в консоль
+ Проблемы кода
+1 класс на 400–500 строк
+10–15 методов
+куча if/else
+невозможно тестировать
+ Что нужно сделать
+Разбить класс минимум на 4–5 логических классов:
+User
+Order
+OrderService
+FileStorage
+ConsoleUI
+Вынести бизнес-логику из UI.
+Убрать дублирование.
+Сделать чёткую ответственность каждого класса.
+Результат
+Код читается
+Каждый класс отвечает за одно
+Можно менять UI без переписывания логики
+
+
+# system.py
+
+import json
+import datetime
+
+class SystemManager:
+    def __init__(self):
+        self.users = []
+        self.orders = []
+        self.filename = "data.json"
+
+    def load_data(self):
+        try:
+            with open(self.filename, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                self.users = data.get("users", [])
+                self.orders = data.get("orders", [])
+        except FileNotFoundError:
+            self.users = []
+            self.orders = []
+
+    def save_data(self):
+        data = {
+            "users": self.users,
+            "orders": self.orders
+        }
+        with open(self.filename, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
+
+    def add_user(self, name, email):
+        user = {
+            "id": len(self.users) + 1,
+            "name": name,
+            "email": email,
+            "created_at": str(datetime.datetime.now())
+        }
+        self.users.append(user)
+        print("Пользователь добавлен")
+        self.save_data()
+
+    def add_order(self, user_id, product, price):
+        order = {
+            "id": len(self.orders) + 1,
+            "user_id": user_id,
+            "product": product,
+            "price": price,
+            "status": "new",
+            "created_at": str(datetime.datetime.now())
+        }
+        self.orders.append(order)
+        print("Заказ создан")
+        self.save_data()
+
+    def calculate_total(self, user_id):
+        total = 0
+        for order in self.orders:
+            if order["user_id"] == user_id:
+                total += order["price"]
+        return total
+
+    def print_users(self):
+        print("Список пользователей")
+        for user in self.users:
+            print(user["id"], user["name"], user["email"])
+
+    def print_orders(self):
+        print("Список заказов")
+        for order in self.orders:
+            print(
+                order["id"],
+                order["user_id"],
+                order["product"],
+                order["price"],
+                order["status"]
+            )
+
+    def menu(self):
+        self.load_data()
+        while True:
+            print("1. Добавить пользователя")
+            print("2. Добавить заказ")
+            print("3. Показать пользователей")
+            print("4. Показать заказы")
+            print("5. Посчитать сумму заказов пользователя")
+            print("0. Выход")
+
+            choice = input("Выберите пункт: ")
+
+            if choice == "1":
+                name = input("Имя: ")
+                email = input("Email: ")
+                self.add_user(name, email)
+
+            elif choice == "2":
+                user_id = int(input("ID пользователя: "))
+                product = input("Название товара: ")
+                price = float(input("Цена: "))
+                self.add_order(user_id, product, price)
+
+            elif choice == "3":
+                self.print_users()
+
+            elif choice == "4":
+                self.print_orders()
+
+            elif choice == "5":
+                user_id = int(input("ID пользователя: "))
+                total = self.calculate_total(user_id)
+                print("Общая сумма:", total)
+
+            elif choice == "0":
+                print("Выход из программы")
+                break
+
+            else:
+                print("Неверный выбор")
+
+if __name__ == "__main__":
+    system = SystemManager()
+    system.menu()
