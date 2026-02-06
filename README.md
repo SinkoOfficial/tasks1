@@ -90,3 +90,90 @@ def calculate_area(width, height):
 Перенеси логику функции в метод area().
 Убедись, что результат вычислений не изменился.
 Смысл задания: логика та же, структура кода лучше.
+
+task6:
+Задание 1— Упрощение условий
+Код:
+def is_adult(age):
+    if age >= 18:
+        return True
+    else:
+        return False
+Требуется:
+Упростить функцию
+Поведение функции менять нельзя
+
+Задание 2— Extract Method
+Код:
+def print_student_result(name, scores):
+    total = 0
+    for score in scores:
+        total += score
+    average = total / len(scores)
+    print(name, "average score:", average)
+Требуется:
+Вынести подсчёт среднего балла в отдельную функцию
+Сделать код более читаемым
+
+Задание 3— Удаление дублирования
+Код:
+price1 = amount * 0.9
+tax1 = price1 * 0.12
+
+price2 = order * 0.9
+tax2 = price2 * 0.12
+Требуется:
+Убрать дублирование
+Использовать одну функцию
+
+Задание 4— Магические числа
+Код:
+def calculate_salary(hours):
+    return hours * 450
+Требуется:
+Убрать «магическое число»
+Использовать константу
+
+
+
+Задание 5— Single Responsibility
+Код:
+def process_user(user):
+    print(user)
+    save_to_db(user)
+    send_email(user)
+Требуется:
+Разделить код на логические функции
+Улучшить читаемость
+
+ Задание 6— Рефакторинг условий
+Код:
+def get_discount(age, is_student):
+    if age < 18:
+        return 0.2
+    else:
+        if is_student:
+            return 0.15
+        else:
+            return 0
+Требуется:
+Упростить структуру условий
+Код должен стать короче и понятнее
+
+Задание 7— Большая функция
+Код:
+def order_info(order):
+    total = 0
+    for item in order:
+        total += item["price"]
+    print("Total:", total)
+
+    if total > 10000:
+        print("Free delivery")
+    else:
+        print("Delivery cost: 1000")
+Требуется:
+Разделить на несколько функций
+Убрать лишнюю логику из одной функции
+Улучшить читаемость
+
